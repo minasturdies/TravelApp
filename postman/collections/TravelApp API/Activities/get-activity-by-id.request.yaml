@@ -1,0 +1,25 @@
+$kind: http-request
+name: 'Get Activity by ID'
+order: 2000
+method: GET
+url: '{{baseUrl}}/api/activities/:id'
+pathVariables:
+  - key: id
+    value: '1'
+    description: 'Numeric ID of the activity to retrieve'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 OK or 404 Not Found", function () {
+          pm.expect(pm.response.code).to.be.oneOf([200, 404]);
+      });
+
+      if (pm.response.code === 200) {
+          pm.test("Activity has required fields", function () {
+              const json = pm.response.json();
+              pm.expect(json).to.have.property("id");
+              pm.expect(json).to.have.property("name");
+              pm.expect(json).to.have.property("category");
+          });
+      }

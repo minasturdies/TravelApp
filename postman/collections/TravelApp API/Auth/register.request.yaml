@@ -1,0 +1,34 @@
+$kind: http-request
+name: Register
+order: 1000
+method: POST
+url: '{{baseUrl}}/api/auth/register'
+headers:
+  - key: Content-Type
+    value: application/json
+body:
+  type: json
+  content: |-
+    {
+      "email": "traveler@example.com",
+      "password": "password123"
+    }
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response contains token and email", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("token");
+          pm.expect(json).to.have.property("email");
+      });
+
+      // Automatically store the token for subsequent requests
+      const json = pm.response.json();
+      if (json && json.token) {
+          pm.collectionVariables.set("authToken", json.token);
+      }

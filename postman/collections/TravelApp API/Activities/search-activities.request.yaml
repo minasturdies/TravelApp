@@ -1,0 +1,36 @@
+$kind: http-request
+name: 'Search Activities'
+order: 1000
+method: GET
+url: '{{baseUrl}}/api/activities'
+queryParams:
+  - key: city
+    value: Paris
+    description: 'City to search activities in (required)'
+  - key: interests
+    value: 'food,art'
+    description: 'Comma-separated list of interest tags (optional)'
+  - key: budget
+    value: '100'
+    description: 'Maximum budget per activity in local currency (optional)'
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response is an array", function () {
+          pm.expect(pm.response.json()).to.be.an("array");
+      });
+
+      pm.test("Each activity has required fields", function () {
+          const activities = pm.response.json();
+          if (activities.length > 0) {
+              const a = activities[0];
+              pm.expect(a).to.have.property("id");
+              pm.expect(a).to.have.property("name");
+              pm.expect(a).to.have.property("category");
+          }
+      });

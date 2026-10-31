@@ -1,0 +1,22 @@
+$kind: http-request
+name: 'Lookup Destination'
+order: 1000
+method: GET
+url: '{{baseUrl}}/api/destinations'
+queryParams:
+  - key: city
+    value: Paris
+    description: City name to look up or create in the destinations table
+scripts:
+  - type: afterResponse
+    language: text/javascript
+    code: |-
+      pm.test("Status is 200 OK", function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test("Response contains destination fields", function () {
+          const json = pm.response.json();
+          pm.expect(json).to.have.property("id");
+          pm.expect(json).to.have.property("cityName");
+      });
